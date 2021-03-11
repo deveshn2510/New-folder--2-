@@ -18,13 +18,18 @@ mongoose.connect(
     console.log("conected to db");
 
     app.post("/create", (req, res) => {
+      var status = req.body.status;
       Task.title = req.body.title;
       if (req.body.subtask.length > 0) {
         Task.subtask = req.body.subtask;
       } else {
         res.send("Subtask Array not found");
       }
-      Task.status = req.body.status;
+      if (status == "active" && status == "completed") {
+        Task.status = status;
+      } else {
+        res.send("Status can either be active or completed");
+      }
       Task.save((err, resp) => {
         if (err) {
           res.send(err);
@@ -44,7 +49,8 @@ mongoose.connect(
     });
 
     app.post("/update", (req, res) => {
-      if (req.body.admin == true) {
+      var admin = req.query.admin;
+      if (admin == "true") {
         Tasks.findOneAndUpdate(
           { _id: req.query.id },
           { new: true },
@@ -65,7 +71,23 @@ mongoose.connect(
           }
         );
       } else {
-        res.send("Admin or ID is missing");
+        res.send("Updation not allowed for Non-Admins");
+      }
+    });
+
+    app.delete("/delete", (req, res) => {
+      var admin = req.query.admin;
+      if (admin == "true") {
+        Tasks.findOneAndDelete({ _id: req.query.id }, (err, resp) => {
+          if (err) {
+            console.log(err);
+            res.send(err);
+          }
+          console.log("deleted successfully");
+          res.send(resp);
+        });
+      } else {
+        res.send("Updation not allowed for Non-Admins");
       }
     });
   }
