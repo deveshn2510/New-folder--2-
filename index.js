@@ -8,6 +8,10 @@ var Tasks = require("./schema/taskSchema");
 
 app.use(express.json());
 
+// function isAdmin(req, res, next) {
+//   if (req.query.admin == true) return next();
+// }
+
 mongoose.connect(
   url,
   { useNewUrlParser: true, useUnifiedTopology: true },
@@ -25,11 +29,7 @@ mongoose.connect(
       } else {
         res.send("Subtask Array not found");
       }
-      if (status == "active" && status == "completed") {
-        Task.status = status;
-      } else {
-        res.send("Status can either be active or completed");
-      }
+      Task.status = req.body.status;
       Task.save((err, resp) => {
         if (err) {
           res.send(err);
